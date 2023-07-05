@@ -1,0 +1,126 @@
+# File name: model_aks_gpu_config.yaml
+# This configuration file is used to deploy a Hugging Face model on a Ray cluster on AKS with GPU.
+
+# Make sure to increase resource requests and limits before using this example in production.
+# For examples with more realistic resource configuration, see
+# ray-cluster.complete.large.yaml and
+# ray-cluster.autoscaler.large.yaml.
+apiVersion: ray.io/v1alpha1
+kind: RayService
+metadata:
+  name: translator-gpu
+spec:
+  serviceUnhealthySecondThreshold: 1000 # Config for the health check threshold for service. Default value is 60.
+  deploymentUnhealthySecondThreshold: 1000 # Config for the health check threshold for deployments. Default value is 60.
+  serveConfig:
+    importPath: gpu_deployment.DagNode
+    runtimeEnv: |
+      {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/1.0.zip", 
+      "pip": ["torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
+    deployments:
+      - name: Translator
+        numReplicas: 1
+        rayActorOptions:
+          # numCpus: 0.2
+          numGpus: 0.3
+      - name: BasicDriver
+        numReplicas: 1
+        routePrefix: "/"
+        rayActorOptions:
+          numGpus: 0.3
+  rayClusterConfig:
+    rayVersion: '2.5.0' # should match the Ray version in the image of the containers
+    ######################headGroupSpecs#################################
+    headGroupSpec:
+      serviceType: ClusterIP # optional
+      # the following params are used to complete the ray start: ray start --head --block --redis-port=6379 ...
+      rayStartParams:
+        port: '6379' # should match container port named gcs-server
+        dashboard-host: '0.0.0.0'
+        # num-cpus: '2' # can be auto-completed from the limits
+        num-cpus: '2'
+        num-gpus: '2'
+        block: 'true'
+      #pod template
+      template:
+        spec:
+          containers:
+            - name: ray-head
+              image: rayproject/ray:2.5.0-gpu
+              resources:
+                limits:
+                  nvidia.com/gpu: 1
+                  # cpu: 2
+                  memory: 3Gi
+                requests:
+                  nvidia.com/gpu: 1
+                  # cpu: 100m
+                  memory: 1Gi
+              ports:
+                - containerPort: 6379
+                  name: gcs-server
+                - containerPort: 8265 # Ray dashboard
+                  name: dashboard
+                - containerPort: 10001
+                  name: client
+                - containerPort: 8000
+                  name: serve
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["/bin/sh","-c","ray stop"]
+          # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
+          tolerations:
+            - effect: NoSchedule
+              key: sku
+              value: gpu
+              operator: Equal
+    workerGroupSpecs:
+      # the pod replicas in this group typed worker
+      - replicas: 1
+        minReplicas: 1
+        maxReplicas: 10
+        # logical group name, for this called small-group, also can be functional
+        groupName: large-group
+        rayStartParams:
+          block: 'true'
+        #pod template
+        template:
+          spec:
+            initContainers:
+              # the env var $FQ_RAY_IP is set by the operator if missing, with the value of the head service name
+              - name: init
+                image: busybox:1.28
+                command: ['sh', '-c', "until nslookup $RAY_IP.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for K8s Service $RAY_IP; sleep 2; done"]
+            # setupCommands:
+            #   - "pip install -U pip"
+            #   - "pip install -U transformers"
+            containers:
+              - name: ray-worker # must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc'
+                image: rayproject/ray:2.5.0-gpu
+                lifecycle:
+                  preStop:
+                    exec:
+                      command: ["/bin/sh","-c","ray stop"]
+                resources:
+                  limits:
+                    nvidia.com/gpu: "1"
+                    # cpu: "2"
+                    memory: "10Gi"
+                  requests:
+                    nvidia.com/gpu: "1"
+                    # cpu: "100m"
+                    memory: "1Gi"
+                lifecycle:
+                  preStop:
+                    exec:
+                      command: ["/bin/sh","-c","ray stop"]
+            # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
+            tolerations:
+              - effect: NoSchedule
+                key: sku
+                value: gpu
+                operator: Equal
+    headServiceAnnotations: {}
+      # annotations passed on for the Head Service
+      # service_key: "service_value"

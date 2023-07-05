@@ -1,0 +1,112 @@
+# Make sure to increase resource requests and limits before using this example in production.
+# For examples with more realistic resource configuration, see
+# ray-cluster.complete.large.yaml and
+# ray-cluster.autoscaler.large.yaml.
+apiVersion: ray.io/v1alpha1
+kind: RayService
+metadata:
+  name: translator-cpu
+spec:
+  serviceUnhealthySecondThreshold: 300 # Config for the health check threshold for service. Default value is 60.
+  deploymentUnhealthySecondThreshold: 300 # Config for the health check threshold for deployments. Default value is 60.
+  serveConfig:
+    importPath: cpu_deployment.DagNode
+    runtimeEnv: |
+      {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/1.0.zip", 
+      "pip": ["torch==1.13.1", "transformers==4.30.2"]}
+    deployments:
+      - name: Translator
+        numReplicas: 1
+        rayActorOptions:
+          numCpus: 0.2
+          # numGpus: 0.2
+      - name: BasicDriver
+        numReplicas: 1
+        routePrefix: "/"
+        rayActorOptions:
+          numCpus: 0.2
+  rayClusterConfig:
+    rayVersion: '2.5.0' # should match the Ray version in the image of the containers
+    ######################headGroupSpecs#################################
+    # Ray head pod template.
+    headGroupSpec:
+      serviceType: ClusterIP # optional
+      # the following params are used to complete the ray start: ray start --head --block --redis-port=6379 ...
+      rayStartParams:
+        port: '6379' # should match container port named gcs-server
+        dashboard-host: '0.0.0.0'
+        num-cpus: '2' # can be auto-completed from the limits
+        block: 'true'
+      #pod template
+      template:
+        spec:
+          containers:
+            - name: ray-head
+              image: rayproject/ray:2.5.0
+              resources:
+                limits:
+                  cpu: 4
+                  # gpu: 1
+                  memory: 2Gi
+                requests:
+                  cpu: 100m
+                  memory: 512Mi
+              ports:
+                - containerPort: 6379
+                  name: gcs-server
+                - containerPort: 8265 # Ray dashboard
+                  name: dashboard
+                - containerPort: 10001
+                  name: client
+                - containerPort: 8000
+                  name: serve
+          # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
+          tolerations:
+            - effect: NoSchedule
+              key: sku
+              value: gpu
+              operator: Equal
+    workerGroupSpecs:
+      # the pod replicas in this group typed worker
+      - replicas: 1
+        minReplicas: 1
+        maxReplicas: 5
+        # logical group name, for this called small-group, also can be functional
+        groupName: small-group
+        rayStartParams:
+          block: 'true'
+        #pod template
+        template:
+          spec:
+            initContainers:
+              # the env var $FQ_RAY_IP is set by the operator if missing, with the value of the head service name
+              - name: init
+                image: busybox:1.28
+                command: ['sh', '-c', "until nslookup $RAY_IP.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for K8s Service $RAY_IP; sleep 2; done"]
+            # setupCommands:
+            #   - "pip install -U pip"
+            #   - "pip install -U transformers"
+            containers:
+              - name: ray-worker # must consist of lower case alphanumeric characters or '-', and must start and end with an alphanumeric character (e.g. 'my-name',  or '123-abc'
+                image: rayproject/ray:2.5.0
+                lifecycle:
+                  preStop:
+                    exec:
+                      command: ["/bin/sh","-c","ray stop"]
+                resources:
+                  limits:
+                    cpu: "2"
+                    # gpu: "1"
+                    memory: "2Gi"
+                  requests:
+                    cpu: "100m"
+                    memory: "1Gi"
+            # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
+            tolerations:
+              - effect: NoSchedule
+                key: sku
+                value: gpu
+                operator: Equal
+    headServiceAnnotations: {}
+      # annotations passed on for the Head Service
+      # service_key: "service_value"
