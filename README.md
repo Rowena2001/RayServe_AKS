@@ -110,6 +110,6 @@ Refer to [this issue](https://github.com/ray-project/kuberay/issues/1194) and [t
 ### autoscaling on AKS and port-forwarding
 When autoscaling is enabled and the service is port-forwarded to the local machine, multithreaded queries might cause a connection error.
 Steps to solve this issue:
-1. Ensure ray[default] is installed or added as an environment dependency.
+1. Ensure ray[default] is installed or added as an environment dependency in the configuration file.
 2. Restart the service using the 'kubectl port-forward' command.
 Refer to [this issue](https://discuss.ray.io/t/ray-job-submit-errors-on-kubernetes/5449) for more information.
