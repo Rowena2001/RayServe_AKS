@@ -105,4 +105,11 @@ Refer to [Set Up Autoscaling and Resource Allocation](https://docs.ray.io/en/mas
 ### serveConfig2
 serveConfig2 is only supported by KubeRay nightly releases. It is not supported by the KubeRay stable release.
 When uninstalling KubeRay stable version and installing KubeRay nightly version, ensure to manually change CRD's as helm uninstall does not remove them.
-Refer to [GitHub Issue](https://github.com/ray-project/kuberay/issues/1194) and [GitHub Issue](https://github.com/ray-project/kuberay/issues/1216) for more information.
+Refer to [this issue](https://github.com/ray-project/kuberay/issues/1194) and [this issue](https://github.com/ray-project/kuberay/issues/1216) for more information.
+
+### autoscaling on AKS and port-forwarding
+When autoscaling is enabled and the service is port-forwarded to the local machine, multithreaded queries might cause a connection error.
+Steps to solve this issue:
+1. Ensure ray[default] is installed or added as an environment dependency.
+2. Restart the service using the 'kubectl port-forward' command.
+Refer to [this issue](https://discuss.ray.io/t/ray-job-submit-errors-on-kubernetes/5449) for more information.
