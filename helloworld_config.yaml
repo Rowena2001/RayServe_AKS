@@ -1,7 +1,6 @@
-# Make sure to increase resource requests and limits before using this example in production.
-# For examples with more realistic resource configuration, see
-# ray-cluster.complete.large.yaml and
-# ray-cluster.autoscaler.large.yaml.
+# FILE NAME: helloworld_config.yaml
+# This configuration file is used to deploy a Hello World application on Ray Serve and AKS.
+
 apiVersion: ray.io/v1alpha1
 kind: RayService
 metadata:
@@ -14,7 +13,7 @@ spec:
   serveConfig:
     importPath: helloworld.DagNode
     runtimeEnv: |
-      working_dir: "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/1.0.zip"
+      working_dir: "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/1.4.zip"
     deployments:
       - name: f
         numReplicas: 1
@@ -24,15 +23,10 @@ spec:
         numReplicas: 1
         rayActorOptions:
           numCpus: 0.1
-        # routePrefix: "/"
   rayClusterConfig:
     rayVersion: '2.5.0' # should match the Ray version in the image of the containers
-    ######################headGroupSpecs#################################
     # Ray head pod template.
     headGroupSpec:
-      # The `rayStartParams` are used to configure the `ray start` command.
-      # See https://github.com/ray-project/kuberay/blob/master/docs/guidance/rayStartParams.md for the default settings of `rayStartParams` in KubeRay.
-      # See https://docs.ray.io/en/latest/cluster/cli.html#ray-start for all available options in `rayStartParams`.
       rayStartParams:
         dashboard-host: '0.0.0.0'
       #pod template
@@ -43,11 +37,11 @@ spec:
               image: rayproject/ray:2.5.0
               resources:
                 limits:
-                  cpu: 2
-                  memory: 2Gi
+                  cpu: "2"
+                  memory: "2Gi"
                 requests:
-                  cpu: 2
-                  memory: 2Gi
+                  cpu: "500m"
+                  memory: "2Gi"
               ports:
                 - containerPort: 6379
                   name: gcs-server
@@ -69,9 +63,6 @@ spec:
         maxReplicas: 5
         # logical group name, for this called small-group, also can be functional
         groupName: small-group
-        # The `rayStartParams` are used to configure the `ray start` command.
-        # See https://github.com/ray-project/kuberay/blob/master/docs/guidance/rayStartParams.md for the default settings of `rayStartParams` in KubeRay.
-        # See https://docs.ray.io/en/latest/cluster/cli.html#ray-start for all available options in `rayStartParams`.
         rayStartParams: {}
         #pod template
         template:
