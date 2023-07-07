@@ -91,7 +91,7 @@ python clients/model_client_medium.py
 python clients/model_client_multithread.py
 ```
 
-### Deploying a Hugging Face Model on Ray Serve and AKS with Autoscaling
+### MVP3: Deploying a Hugging Face Model on Ray Serve and AKS with Autoscaling
 
 1. If you don't already have an AKS cluster, follow AKS documentation to create one.
 2. Install transformers using pip.
