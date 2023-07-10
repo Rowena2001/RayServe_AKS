@@ -2,7 +2,7 @@ from queue import Queue
 import requests
 from threading import Thread
 import time
-from RayServe_AKS.clients.worker_threadpool import Worker, ThreadPool
+from worker_threadpool import Worker, ThreadPool
 
 start_time = time.time()
 lines = [open("queries.txt", "r").readlines()][0]
