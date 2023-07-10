@@ -167,8 +167,8 @@ The autoscalingConfig field is not supported in the yaml file for apiVersion ray
 Refer to [Set Up Autoscaling and Resource Allocation](https://docs.ray.io/en/master/serve/scaling-and-resource-allocation.html#) for more information.
 
 ### serveConfig2
-serveConfig2 is supported by KubeRay v0.5.2 and nightly release.
-When uninstalling KubeRay stable version and installing KubeRay nightly version, ensure to manually change CRD's as helm uninstall does not remove them.
+serveConfig2 is supported by newer KubeRay versions (v0.5.2+) and nightly releases.
+When uninstalling KubeRay older versions and installing KubeRay nightly version, ensure to manually change CRD's as helm uninstall does not remove them.
 Refer to [this issue](https://github.com/ray-project/kuberay/issues/1194) and [this issue](https://github.com/ray-project/kuberay/issues/1216) for more information.
 
 ### autoscaling on AKS and port-forwarding
