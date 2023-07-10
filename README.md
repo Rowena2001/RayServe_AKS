@@ -12,7 +12,7 @@ This is a repository for exploring the deployment of models on Ray Serve and AKS
 pip install "ray[serve]"
 ```
 3. Follow [Deploying Ray on Kubernetes](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started.html#kuberay-quickstart) documentation to install kubectl and Helm.
-4. Deploy the Kuberay operator. Please not that the Kuberay nightly release is best for autoscaling as the stable release has a bug (refer to Issues Encountered).
+4. Deploy the KubeRay operator. Please not that the KubeRay nightly release is best for autoscaling as the stable release has a bug (refer to Issues Encountered).
 ```
 # Stable release
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
@@ -53,7 +53,7 @@ kubectl port-forward service/helloworld-serve-svc 8000
 pip install transformers
 ```
 3. Follow [Deploying Ray on Kubernetes](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started.html#kuberay-quickstart) documentation to install kubectl and helm.
-4. Deploy the Kuberay operator. Please not that the Kuberay nightly release is best for autoscaling as the stable release has a bug (refer to Issues Encountered).
+4. Deploy the KubeRay operator. Please not that the KubeRay nightly release is best for autoscaling as the stable release has a bug (refer to Issues Encountered).
 ```
 # Stable release
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
@@ -167,14 +167,14 @@ The autoscalingConfig field is not supported in the yaml file for apiVersion ray
 Refer to [Set Up Autoscaling and Resource Allocation](https://docs.ray.io/en/master/serve/scaling-and-resource-allocation.html#) for more information.
 
 ### serveConfig2
-serveConfig2 is only supported by KubeRay nightly releases. It is not supported by the KubeRay stable release.
+serveConfig2 is supported by KubeRay v0.5.2 and nightly release.
 When uninstalling KubeRay stable version and installing KubeRay nightly version, ensure to manually change CRD's as helm uninstall does not remove them.
 Refer to [this issue](https://github.com/ray-project/kuberay/issues/1194) and [this issue](https://github.com/ray-project/kuberay/issues/1216) for more information.
 
 ### autoscaling on AKS and port-forwarding
 When autoscaling is enabled and the service is port-forwarded to the local machine, multithreaded queries might cause a connection error.
 Steps to solve this issue:
-1. Use Kuberay nightly release.
+1. Use KubeRay nightly release.
 2. Ensure ray[default] is installed or added as an environment dependency in the configuration file.
 3. Restart the service using the 'kubectl port-forward' command.
 Refer to [this issue](https://github.com/ray-project/kuberay/issues/1222) for more information.
