@@ -27,6 +27,8 @@ spec:
       # the following params are used to complete the ray start: ray start --head --block ...
       rayStartParams:
         dashboard-host: '0.0.0.0'
+        # ray-grafana-host: '10.244.2.244:3000'
+        # ray-prometheus-host: '10.244.2.244:9090'
       #pod template
       template:
         spec:
@@ -43,6 +45,10 @@ spec:
                 name: client
               - containerPort: 8000
                 name: serve
+              # - containerPort: 3000
+              #   name:  ray-grafana-host
+              # - containerPort: 9090
+              #   name: ray-prometheus-host
             lifecycle:
               preStop:
                 exec:
