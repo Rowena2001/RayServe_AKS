@@ -1,10 +1,10 @@
 # Ray Serve AKS Exploration
 
-This is a repository for exploring the deployment of models on Ray Serve and AKS. The goal is to create a pipeline that can be used to deploy models on AKS using Ray Serve. 
+This is a repository for exploring the deployment of models on Ray Serve and AKS. The goal is to create a pipeline that can be used to deploy models on AKS using Ray Serve with autoscaling.
 
-## Ray and AKS Tutorials
+## Ray Serve on AKS Tutorials
 
-### Deploying a Hello World Application on Ray Serve and AKS
+### MVP1: Deploying a Hello World Application on Ray Serve and AKS
 
 1. If you don't already have an AKS cluster, follow AKS documentation to create one.
 2. Install Ray Serve using pip.
@@ -12,13 +12,17 @@ This is a repository for exploring the deployment of models on Ray Serve and AKS
 pip install "ray[serve]"
 ```
 3. Follow [Deploying Ray on Kubernetes](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started.html#kuberay-quickstart) documentation to install kubectl and Helm.
-
-4. Deploy the Kuberay operator.
+4. Deploy the Kuberay operator. Please not that the Kuberay nightly release is best for autoscaling as the stable release has a bug (refer to Issues Encountered).
 ```
+# Stable release
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 helm install kuberay-operator kuberay/kuberay-operator --version 0.5.0
-```
 
+# Nightly release
+git clone https://github.com/ray-project/kuberay.git
+cd kuberay/helm-chart/kuberay-operator
+helm install kuberay-operator . --set image.repository=kuberay/operator,image.tag=nightly
+```
 5. Apply helloworld_config.yaml file to the cluster.
 ```
 kubectl apply -f helloworld_config.yaml
@@ -28,30 +32,39 @@ kubectl apply -f helloworld_config.yaml
 kubectl get pods
 kubectl get services
 ```
-7. Forward the service to your local machine.
+7. Forward the Ray Serve dashboard and helloworld service to your local machine.
+```
+# Get the name of the Ray cluster
+kubectl get rayclusters
+kubectl port-forward --address 0.0.0.0 service/${RAYCLUSTER_NAME}-head-svc 8265:8265 
+# Access the dashboard on your browser at localhost:8265
+```
+8. Forward the helloworld service to your local machine.
 ```
 kubectl port-forward service/helloworld-serve-svc 8000
-```
-8. Access the service using curl.
-```
-curl localhost:8000
+# Access the service on your browser at localhost:8000 or using curl localhost:8000
 ```
 
-### Deploying a Hugging Face Model on Ray Serve and AKS
+### MVP2: Deploying a Hugging Face Model on Ray Serve and AKS
 
 1. If you don't already have an AKS cluster, follow AKS documentation to create one.
 2. Install transformers using pip.
 ```
 pip install transformers
 ```
-3. Follow [Deploying Ray on Kubernetes](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started.html#kuberay-quickstart) documentation to install kubectl and Helm.
-
-4. Deploy the Kuberay operator.
+3. Follow [Deploying Ray on Kubernetes](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started.html#kuberay-quickstart) documentation to install kubectl and helm.
+4. Deploy the Kuberay operator. Please not that the Kuberay nightly release is best for autoscaling as the stable release has a bug (refer to Issues Encountered).
 ```
+# Stable release
 helm repo add kuberay https://ray-project.github.io/kuberay-helm/
 helm install kuberay-operator kuberay/kuberay-operator --version 0.5.0
+
+# Nightly release
+git clone https://github.com/ray-project/kuberay.git
+cd kuberay/helm-chart/kuberay-operator
+helm install kuberay-operator . --set image.repository=kuberay/operator,image.tag=nightly
 ```
-5. Apply model_cpu_config.yaml or model_gpu_config.yaml file to the cluster.
+5. Apply model_cpu_config.yaml or model_gpu_config.yaml file to the cluster depending on what resources you would like to use.
 ```
 kubectl apply -f model_cpu_config.yaml
 kubectl apply -f model_gpu_config.yaml
@@ -61,15 +74,66 @@ kubectl apply -f model_gpu_config.yaml
 kubectl get pods
 kubectl get services
 ```
-7. Forward the service to your local machine.
+7. Forward the Ray Serve dashboard and helloworld service to your local machine.
 ```
-kubectl port-forward service/translator-cpu-serve-svc 8000
-kubectl port-forward service/translator-gpu-serve-svc 8000
+# Get the name of the Ray cluster
+kubectl get rayclusters
+kubectl port-forward --address 0.0.0.0 service/${RAYCLUSTER_NAME}-head-svc 8265:8265 
+# Access the dashboard on your browser at localhost:8265
 ```
-8. Run a model_client script to access the service.
+8. Forward the translator-model service to your local machine.
 ```
-python model_client_small.py
-python model_client_large.py
+kubectl port-forward service/translator-model-serve-svc 8000
+```
+9. Run a model_client script to access the service.
+```
+python clients/model_client_medium.py
+python clients/model_client_multithread.py
+```
+
+### MVP3: Deploying a Hugging Face Model on Ray Serve and AKS with Autoscaling
+
+1. If you don't already have an AKS cluster, follow AKS documentation to create one.
+2. Install transformers using pip.
+```
+pip install transformers
+```
+3. Follow [Deploying Ray on Kubernetes](https://docs.ray.io/en/latest/cluster/kubernetes/getting-started.html#kuberay-quickstart) documentation to install kubectl and helm.
+4. Deploy the Kuberay operator. Please not that the Kuberay nightly release is best for autoscaling as the stable release has a bug (refer to Issues Encountered).
+```
+# Stable release
+helm repo add kuberay https://ray-project.github.io/kuberay-helm/
+helm install kuberay-operator kuberay/kuberay-operator --version 0.5.0
+
+# Nightly release
+git clone https://github.com/ray-project/kuberay.git
+cd kuberay/helm-chart/kuberay-operator
+helm install kuberay-operator . --set image.repository=kuberay/operator,image.tag=nightly
+```
+5. Apply model_cpu_config.yaml or model_gpu_config.yaml file to the cluster depending on what resources you would like to use.
+```
+kubectl apply -f model_autoscale_config.yaml
+```
+6. Check pods and services using kubectl.
+```
+kubectl get pods
+kubectl get services
+```
+7. Forward the Ray Serve dashboard and helloworld service to your local machine.
+```
+# Get the name of the Ray cluster
+kubectl get rayclusters
+kubectl port-forward --address 0.0.0.0 service/${RAYCLUSTER_NAME}-head-svc 8265:8265 
+# Access the dashboard on your browser at localhost:8265
+```
+8. Forward the translator-autoscale service to your local machine.
+```
+kubectl port-forward service/translator-autoscale-serve-svc 8000
+```
+9. Run a model_client script to access the service.
+```
+python clients/model_client_medium.py
+python clients/model_client_multithread.py
 ```
 
 ### Viewing the Ray Dashboard on AKS
@@ -110,6 +174,7 @@ Refer to [this issue](https://github.com/ray-project/kuberay/issues/1194) and [t
 ### autoscaling on AKS and port-forwarding
 When autoscaling is enabled and the service is port-forwarded to the local machine, multithreaded queries might cause a connection error.
 Steps to solve this issue:
-1. Ensure ray[default] is installed or added as an environment dependency in the configuration file.
-2. Restart the service using the 'kubectl port-forward' command.
-Refer to [this issue](https://discuss.ray.io/t/ray-job-submit-errors-on-kubernetes/5449) for more information.
+1. Use Kuberay nightly release.
+2. Ensure ray[default] is installed or added as an environment dependency in the configuration file.
+3. Restart the service using the 'kubectl port-forward' command.
+Refer to [this issue](https://github.com/ray-project/kuberay/issues/1222) for more information.
