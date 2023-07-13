@@ -11,7 +11,7 @@ spec:
   serveConfig:
     importPath: translator_model.translator_app
     runtimeEnv: |
-      {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/1.4.zip", 
+      {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip", 
       "pip": ["ray[default]", "torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
     deployments:
       - name: Translator

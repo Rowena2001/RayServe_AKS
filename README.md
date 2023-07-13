@@ -178,3 +178,6 @@ Steps to solve this issue:
 2. Ensure ray[default] is installed or added as an environment dependency in the configuration file.
 3. Restart the service using the 'kubectl port-forward' command.
 Refer to [this issue](https://github.com/ray-project/kuberay/issues/1222) for more information.
+
+## Helpful Tips
+- If you don't want replicas running on the head node, set the number of CPUs to 0 in the configuration file on the head node and a non-zero number of CPUs for your deployment replicas.

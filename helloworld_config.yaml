@@ -13,7 +13,7 @@ spec:
   serveConfig:
     importPath: helloworld.DagNode
     runtimeEnv: |
-      working_dir: "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/1.4.zip"
+      working_dir: "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip"
     deployments:
       - name: f
         numReplicas: 1
