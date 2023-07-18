@@ -1,6 +1,4 @@
-from queue import Queue
 import requests
-from threading import Thread
 import time
 from worker_threadpool import Worker, ThreadPool
 

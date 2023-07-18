@@ -1,5 +1,6 @@
 # File name: model_autoscale_config.yaml
 # This configuration file is used to deploy a Hugging Face model on a Ray cluster on AKS with autoscaling.
+# automatically create zip file automatically
 
 apiVersion: ray.io/v1alpha1
 kind: RayService
@@ -11,7 +12,7 @@ spec:
   serveConfig:
     importPath: translator_autoscale.translator_app
     runtimeEnv: |
-      {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/1.4.zip", 
+      {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip", 
       "pip": ["ray[default]", "torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
     deployments:
       - name: Translator
@@ -35,7 +36,7 @@ spec:
           containers:
           # The Ray head container
           - name: ray-head
-            image: rayproject/ray:2.5.0
+            image: rowenainternacr.azurecr.io/ray:test-2.5.0
             ports:
               - containerPort: 6379
                 name: gcs-server
@@ -49,6 +50,11 @@ spec:
               #   name:  ray-grafana-host
               # - containerPort: 9090
               #   name: ray-prometheus-host
+            env:
+            - name: RAY_GRAFANA_HOST
+              value: '0.0.0.0:3000'
+            - name: RAY_PROMETHEUS_HOST
+              value: '0.0.0.0:9090'
             lifecycle:
               preStop:
                 exec:
@@ -78,7 +84,7 @@ spec:
         spec:
           containers:
           - name: ray-worker
-            image: rayproject/ray:2.5.0
+            image: rowenainternacr.azurecr.io/ray:test-2.5.0
             lifecycle:
               preStop:
                 exec:

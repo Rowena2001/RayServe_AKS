@@ -1,25 +1,26 @@
-# File name: model_gpu_config.yaml
+# File name: model_gpu_autoscale_config.yaml
 # This configuration file is used to deploy a Hugging Face model on a Ray cluster on AKS with GPU resources.
 
 apiVersion: ray.io/v1alpha1
 kind: RayService
 metadata:
-  name: translator-model
+  name: translator-gpu-auto
 spec:
   serviceUnhealthySecondThreshold: 300 # Config for the health check threshold for service. Default value is 60.
   deploymentUnhealthySecondThreshold: 300 # Config for the health check threshold for deployments. Default value is 6
   serveConfig:
-    importPath: translator_model.translator_app
+    importPath: translator_autoscale.translator_app
     runtimeEnv: |
       {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip", 
-      "pip": ["ray[default]", "torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
+      "pip": ["ray[default]", "torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3", "cuda-python"]}
     deployments:
       - name: Translator
         rayActorOptions:
-          numCpus: 0.5
+          numGpus: 0.5
   rayClusterConfig:
     # The version of Ray you are using. Make sure all Ray containers are running this version of Ray.
-    rayVersion: '2.5.0'
+    rayVersion: '2.5.0-gpu'
+    enableInTreeAutoscaling: true
     # Ray head pod template
     headGroupSpec:
       serviceType: ClusterIP # optional
@@ -52,7 +53,7 @@ spec:
                 memory: "5Gi"
               requests:
                 nvidia.com/gpu: "1"
-                memory: "1Gi"
+                memory: "2Gi"
           # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
           tolerations:
             - effect: NoSchedule
@@ -61,8 +62,8 @@ spec:
               operator: Equal
     workerGroupSpecs:
     # the pod replicas in this group typed worker
-    - replicas: 1
-      minReplicas: 1
+    - replicas: 2
+      minReplicas: 2
       maxReplicas: 5
       # logical group name, for this called small-group, also can be functional
       groupName: small-group
