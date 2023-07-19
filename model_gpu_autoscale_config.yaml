@@ -9,17 +9,17 @@ spec:
   serviceUnhealthySecondThreshold: 300 # Config for the health check threshold for service. Default value is 60.
   deploymentUnhealthySecondThreshold: 300 # Config for the health check threshold for deployments. Default value is 6
   serveConfig:
-    importPath: translator_autoscale.translator_app
+    importPath: translator_gpu_autoscale.translator_app
     runtimeEnv: |
       {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip", 
-      "pip": ["ray[default]", "torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3", "cuda-python"]}
+      "pip": ["torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
     deployments:
       - name: Translator
         rayActorOptions:
-          numGpus: 0.5
+          numGpus: 1
   rayClusterConfig:
     # The version of Ray you are using. Make sure all Ray containers are running this version of Ray.
-    rayVersion: '2.5.0-gpu'
+    rayVersion: '2.5.0'
     enableInTreeAutoscaling: true
     # Ray head pod template
     headGroupSpec:
@@ -33,7 +33,7 @@ spec:
           containers:
           # The Ray head container
           - name: ray-head
-            image: rayproject/ray:2.5.0-gpu
+            image: rayproject/ray-ml:2.5.0-gpu
             ports:
               - containerPort: 6379
                 name: gcs-server
@@ -50,10 +50,10 @@ spec:
             resources:
               limits:
                 nvidia.com/gpu: "1"
-                memory: "5Gi"
+                memory: "8Gi"
               requests:
                 nvidia.com/gpu: "1"
-                memory: "2Gi"
+                memory: "6Gi"
           # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
           tolerations:
             - effect: NoSchedule
@@ -62,8 +62,8 @@ spec:
               operator: Equal
     workerGroupSpecs:
     # the pod replicas in this group typed worker
-    - replicas: 2
-      minReplicas: 2
+    - replicas: 1
+      minReplicas: 1
       maxReplicas: 5
       # logical group name, for this called small-group, also can be functional
       groupName: small-group
@@ -72,7 +72,7 @@ spec:
         spec:
           containers:
           - name: ray-worker
-            image: rayproject/ray:2.5.0-gpu
+            image: rayproject/ray-ml:2.5.0-gpu
             lifecycle:
               preStop:
                 exec:
@@ -80,10 +80,10 @@ spec:
             resources:
               limits:
                 nvidia.com/gpu: "1"
-                memory: "8Gi"
+                memory: "2Gi"
               requests:
                 nvidia.com/gpu: "1"
-                memory: "2Gi"
+                memory: "1Gi"
           # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
           tolerations:
             - effect: NoSchedule

@@ -4,15 +4,15 @@
 apiVersion: ray.io/v1alpha1
 kind: RayService
 metadata:
-  name: translator-model
+  name: translator-cpu
 spec:
   serviceUnhealthySecondThreshold: 300 # Config for the health check threshold for service. Default value is 60.
   deploymentUnhealthySecondThreshold: 300 # Config for the health check threshold for deployments. Default value is 6
   serveConfig:
-    importPath: translator_model.translator_app
+    importPath: translator_cpu.translator_app
     runtimeEnv: |
       {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip", 
-      "pip": ["ray[default]", "torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
+      "pip": ["torch==1.13.1", "transformers==4.30.2"]}
     deployments:
       - name: Translator
         rayActorOptions:

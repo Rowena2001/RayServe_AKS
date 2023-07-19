@@ -5,7 +5,7 @@
 apiVersion: ray.io/v1alpha1
 kind: RayService
 metadata:
-  name: translator-autoscale
+  name: translator-auto
 spec:
   serviceUnhealthySecondThreshold: 300 # Config for the health check threshold for service. Default value is 60.
   deploymentUnhealthySecondThreshold: 300 # Config for the health check threshold for deployments. Default value is 6
@@ -13,7 +13,7 @@ spec:
     importPath: translator_autoscale.translator_app
     runtimeEnv: |
       {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip", 
-      "pip": ["ray[default]", "torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
+      "pip": ["torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
     deployments:
       - name: Translator
         rayActorOptions:
@@ -46,15 +46,6 @@ spec:
                 name: client
               - containerPort: 8000
                 name: serve
-              # - containerPort: 3000
-              #   name:  ray-grafana-host
-              # - containerPort: 9090
-              #   name: ray-prometheus-host
-            env:
-            - name: RAY_GRAFANA_HOST
-              value: '0.0.0.0:3000'
-            - name: RAY_PROMETHEUS_HOST
-              value: '0.0.0.0:9090'
             lifecycle:
               preStop:
                 exec:

@@ -4,19 +4,19 @@
 apiVersion: ray.io/v1alpha1
 kind: RayService
 metadata:
-  name: translator-model
+  name: translator-gpu
 spec:
   serviceUnhealthySecondThreshold: 300 # Config for the health check threshold for service. Default value is 60.
   deploymentUnhealthySecondThreshold: 300 # Config for the health check threshold for deployments. Default value is 6
   serveConfig:
-    importPath: translator_model.translator_app
+    importPath: translator_gpu.translator_app
     runtimeEnv: |
       {"working_dir": "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip", 
-      "pip": ["ray[default]", "torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
+      "pip": ["torch==1.13.1", "transformers==4.30.2", "accelerate==0.20.3"]}
     deployments:
       - name: Translator
         rayActorOptions:
-          numCpus: 0.5
+          numGpus: 1
   rayClusterConfig:
     # The version of Ray you are using. Make sure all Ray containers are running this version of Ray.
     rayVersion: '2.5.0'
@@ -32,7 +32,7 @@ spec:
           containers:
           # The Ray head container
           - name: ray-head
-            image: rayproject/ray:2.5.0-gpu
+            image: rayproject/ray-ml:2.5.0-gpu
             ports:
               - containerPort: 6379
                 name: gcs-server
@@ -49,7 +49,7 @@ spec:
             resources:
               limits:
                 nvidia.com/gpu: "1"
-                memory: "5Gi"
+                memory: "8Gi"
               requests:
                 nvidia.com/gpu: "1"
                 memory: "1Gi"
@@ -71,7 +71,7 @@ spec:
         spec:
           containers:
           - name: ray-worker
-            image: rayproject/ray:2.5.0-gpu
+            image: rayproject/ray-ml:2.5.0-gpu
             lifecycle:
               preStop:
                 exec:
@@ -82,7 +82,7 @@ spec:
                 memory: "8Gi"
               requests:
                 nvidia.com/gpu: "1"
-                memory: "2Gi"
+                memory: "1Gi"
           # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
           tolerations:
             - effect: NoSchedule

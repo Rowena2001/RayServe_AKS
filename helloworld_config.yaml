@@ -13,7 +13,7 @@ spec:
   serveConfig:
     importPath: helloworld.DagNode
     runtimeEnv: |
-      working_dir: "https://dev.azure.com/msasg/Bing_and_IPG/_apis/git/repositories/DLIS_Intern_Deployments/items/items?path=/&versionDescriptor[versionOptions]=0&versionDescriptor[versionType]=0&versionDescriptor[version]=main&resolveLfs=true&$format=zip&api-version=5.0&download=true"
+      working_dir: "https://github.com/Rowena2001/Final_Deployments/archive/refs/tags/latest.zip"
     deployments:
       - name: f
         numReplicas: 1
