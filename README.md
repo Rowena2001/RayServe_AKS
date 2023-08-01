@@ -192,7 +192,7 @@ git clone https://github.com/ray-project/kuberay.git
 cd kuberay/helm-chart/kuberay-operator
 helm install kuberay-operator . --set image.repository=kuberay/operator,image.tag=nightly
 ```
-5. Apply model_cpu_config.yaml or model_gpu_config.yaml file to the cluster depending on what resources you would like to use.
+5. Apply model_autoscale_config.yaml file to the cluster depending on what resources you would like to use.
 ```
 kubectl apply -f model_autoscale_config.yaml
 ```
