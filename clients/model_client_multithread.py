@@ -3,10 +3,8 @@ import time
 from worker_threadpool import Worker, ThreadPool
 
 start_time = time.time()
-lines = [open("queries.txt", "r").readlines()][0]
-pool = ThreadPool(40)
-
-f = open("queries.txt", "r")
+lines = [open("test_taylor.txt", "r").readlines()][0]
+pool = ThreadPool(45)
 
 def post(line):
     r = requests.post("http://127.0.0.1:8000/", json=line)

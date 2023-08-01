@@ -7,7 +7,10 @@
 In this project, we will explore how to use **Ray Serve** on **Azure Kubernetes Service (AKS)** to deploy deep learning models. We will start by deploying a simple "Hello World" service on AKS using Ray Serve and the KubeRay operator. Then, we will deploy a Hugging Face model on AKS using Ray Serve and the KubeRay operator. Finally, we will explore how to autoscale the Hugging Face model using Ray Serve and the KubeRay operator.
 
 # About this Repository
-This repository contains configuration files for deploying models on Ray Serve and AKS. These configuration files use Ray deployment code from the [DLIS_Intern_Deployments](https://dev.azure.com/msasg/Bing_and_IPG/_git/DLIS_Intern_Deployments) repo as the working directory.
+This repository contains configuration files for deploying models on Ray Serve and AKS. These configuration files use Ray deployment code from the [Final_Deployments](https://github.com/Rowena2001/Final_Deployments) repo as the working directory.
+
+# Project Summary
+This project consisted of five MVPs. The first MVP was to deploy a simple **Hello World application** on AKS using Ray Serve and the KubeRay operator. The second MVP was to deploy a **Hugging Face model** on AKS using Ray Serve and the KubeRay operator. The third MVP was to deploy a Hugging Face model on AKS using Ray Serve and the KubeRay operator with **autoscaling**. The fourth MVP was to create an **automated pipeline** to create deployments and make them available for configuration. The fifth MVP was to integrate all components of the project into a cohesive **demonstration**.
 
 # Getting Started: Ray Serve on AKS Tutorials
 ### MVP1: Deploying a Hello World Application on Ray Serve and AKS

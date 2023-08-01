@@ -16,7 +16,8 @@ spec:
     deployments:
       - name: Translator
         rayActorOptions:
-          numGpus: 1
+          numGpus: 0.1
+          numCpus: 0.3
   rayClusterConfig:
     # The version of Ray you are using. Make sure all Ray containers are running this version of Ray.
     rayVersion: '2.5.0'
@@ -50,10 +51,12 @@ spec:
             resources:
               limits:
                 nvidia.com/gpu: "1"
+                cpu: "2"
                 memory: "8Gi"
               requests:
                 nvidia.com/gpu: "1"
-                memory: "6Gi"
+                cpu: "1"
+                memory: "4Gi"
           # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
           tolerations:
             - effect: NoSchedule
@@ -80,10 +83,12 @@ spec:
             resources:
               limits:
                 nvidia.com/gpu: "1"
-                memory: "2Gi"
+                cpu: "3"
+                memory: "8Gi"
               requests:
                 nvidia.com/gpu: "1"
-                memory: "1Gi"
+                cpu: "2"
+                memory: "6Gi"
           # tolerations are used to schedule pods if the node has the matching taints (i.e. AKS nodepool taints)
           tolerations:
             - effect: NoSchedule
