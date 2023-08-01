@@ -77,7 +77,9 @@ This project consisted of five MVPs, each geared towards exploring deeper into t
 ## MVP4: Automated Pipeline
 - Learning Outcomes:
     - Familiarize with GitHub Actions
-    - Configure a GitHub Actions workflow to automate release creation
+    - Understand the use case of automated pipelines in DevOps
+    - Configure a GitHub Actions workflow to automate release creation with customized tags
+
 ## MVP5: Demonstration
 - Learning Outcomes:
     - Create a comprehensive presentation to demonstrate the learning outcomes and milestones of the project
