@@ -12,7 +12,28 @@ This repository contains configuration files for deploying models on Ray Serve a
 # Project Summary
 This project consisted of five MVPs, each geared towards exploring deeper into the capabilities of Ray Serve on AKS. The first MVP was to deploy a simple **Hello World application** on AKS using Ray Serve and the KubeRay operator. The second MVP was to deploy a **Hugging Face model** on AKS using Ray Serve and the KubeRay operator. The third MVP was to deploy a Hugging Face model on AKS using Ray Serve and the KubeRay operator with **autoscaling**. The fourth MVP was to create an **automated pipeline** to create deployments and make them available for configuration. The fifth MVP was to integrate all components of the project into a cohesive **demonstration**.
 ## MVP1: Deploying a Hello World Application on Ray Serve and AKS
-
+- Learning Outcomes:
+    - Familiarize with Ray Serve, Kubernetes/AKS, and KubeRay
+    - Deploy a simple application on Ray Serve locally (without Kubernetes/AKS)
+    - Deploy a simple application on Ray Serve on Kubernetes using KubeRay (kind)
+    - Deploy a simple application on Ray Serve and AKS using KubeRay
+    - How to port-forward services to local machine
+    - How to query services using curl
+    - How to use the open-source community for troubleshooting
+- Issues Encountered:
+    - runtimeEnv: When configuring a Ray Serve deployment on AKS with KubeRay, the runtimeEnv working directory must be a publicly accessible link. Using a local file path will not work as the KubeRay operator does not support this. This issue was resolved by uploading the working directory to a public GitHub repository and using the release zip file link as the runtimeEnv.
+## MVP2: Deploying a Hugging Face Model on Ray Serve and AKS
+- Learning Outcomes:
+- Issues Encountered:
+## MVP3: Deploying a Hugging Face Model on Ray Serve and AKS with Autoscaling
+- Learning Outcomes:
+- Issues Encountered:
+## MVP4: Automated Pipeline
+- Learning Outcomes:
+- Issues Encountered:
+## MVP5: Demonstration
+- Learning Outcomes:
+- Issues Encountered:
 
 # Ray Serve on AKS Tutorials
 ## MVP1: Deploying a Hello World Application on Ray Serve and AKS
