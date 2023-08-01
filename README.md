@@ -2,7 +2,7 @@
 
 # Introduction 
 
-[**Ray Serve**](https://docs.ray.io/en/latest/serve/index.html) is a scalable and framework-agnostic model serving library that allows developers to build online inference APIs with Python. Serve is built on top of Ray, so it easily scales to many machines and offers flexible scheduling support such as fractional GPUs so you can share resources and serve many machine learning models at low cost. Ray Serve can run on any Kubernetes cluster using KubeRay, providing the benefits of both Ray's user experience and scalable compute, and Kubernetes' operational features.
+[**Ray Serve**](https://docs.ray.io/en/latest/serve/index.html) is a scalable and framework-agnostic model serving library that allows developers to build online inference APIs with Python. Serve is built on top of Ray, so it easily scales to many machines and offers flexible scheduling support such as fractional GPUs so you can share resources and serve many machine learning models at low cost. Ray Serve can run on any Kubernetes cluster using [**KubeRay**](https://ray-project.github.io/kuberay/), providing the benefits of both Ray's scalable serving and Kubernetes' operational features.
 
 In this project, we will explore how to use **Ray Serve** on **Azure Kubernetes Service (AKS)** to deploy deep learning models. We will start by deploying a simple "Hello World" service on AKS using Ray Serve and the KubeRay operator. Then, we will deploy a Hugging Face model on AKS using Ray Serve and the KubeRay operator. Finally, we will explore how to autoscale the Hugging Face model using Ray Serve and the KubeRay operator.
 
@@ -10,10 +10,12 @@ In this project, we will explore how to use **Ray Serve** on **Azure Kubernetes 
 This repository contains configuration files for deploying models on Ray Serve and AKS. These configuration files use Ray deployment code from the [Final_Deployments](https://github.com/Rowena2001/Final_Deployments) repo as the working directory.
 
 # Project Summary
-This project consisted of five MVPs. The first MVP was to deploy a simple **Hello World application** on AKS using Ray Serve and the KubeRay operator. The second MVP was to deploy a **Hugging Face model** on AKS using Ray Serve and the KubeRay operator. The third MVP was to deploy a Hugging Face model on AKS using Ray Serve and the KubeRay operator with **autoscaling**. The fourth MVP was to create an **automated pipeline** to create deployments and make them available for configuration. The fifth MVP was to integrate all components of the project into a cohesive **demonstration**.
+This project consisted of five MVPs, each geared towards exploring deeper into the capabilities of Ray Serve on AKS. The first MVP was to deploy a simple **Hello World application** on AKS using Ray Serve and the KubeRay operator. The second MVP was to deploy a **Hugging Face model** on AKS using Ray Serve and the KubeRay operator. The third MVP was to deploy a Hugging Face model on AKS using Ray Serve and the KubeRay operator with **autoscaling**. The fourth MVP was to create an **automated pipeline** to create deployments and make them available for configuration. The fifth MVP was to integrate all components of the project into a cohesive **demonstration**.
+## MVP1: Deploying a Hello World Application on Ray Serve and AKS
 
-# Getting Started: Ray Serve on AKS Tutorials
-### MVP1: Deploying a Hello World Application on Ray Serve and AKS
+
+# Ray Serve on AKS Tutorials
+## MVP1: Deploying a Hello World Application on Ray Serve and AKS
 
 1. If you don't already have an AKS cluster, follow AKS documentation to create one.
 2. Install Ray Serve using pip.
@@ -54,7 +56,7 @@ kubectl port-forward service/helloworld-serve-svc 8000
 # Access the service on your browser at localhost:8000 or using curl localhost:8000
 ```
 
-### MVP2: Deploying a Hugging Face Model on Ray Serve and AKS
+## MVP2: Deploying a Hugging Face Model on Ray Serve and AKS
 
 1. If you don't already have an AKS cluster, follow AKS documentation to create one.
 2. Install transformers using pip.
@@ -100,7 +102,7 @@ python clients/model_client_medium.py
 python clients/model_client_multithread.py
 ```
 
-### MVP3: Deploying a Hugging Face Model on Ray Serve and AKS with Autoscaling
+## MVP3: Deploying a Hugging Face Model on Ray Serve and AKS with Autoscaling
 
 1. If you don't already have an AKS cluster, follow AKS documentation to create one.
 2. Install transformers using pip.
@@ -145,7 +147,34 @@ python clients/model_client_medium.py
 python clients/model_client_multithread.py
 ```
 
-### Viewing the Ray Dashboard on AKS
+## MVP4: Developing an Automated Pipeline for Releases
+
+To make Ray deployments accessible for KubeRay configuration, a publicly available release is needed for the working directory. This can be done by creating a release on GitHub. To automate release creation, a pipeline can be used to create a release whenever something is pushed to the repository. This can be done using GitHub Actions. Follow (GitHub Docs)[https://docs.github.com/en/actions/using-workflows/triggering-a-workflow] to learn more about creating a workflow file. The following is an example of a workflow file that creates a "latest" release whenever something pushed to the repository.
+
+```
+name: "auto-release"
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  auto-release:
+    name: "Auto Release"
+    permissions: write-all
+    runs-on: "ubuntu-latest"
+
+    steps:
+    - name: Automatic Releases
+      uses: marvinpinto/action-automatic-releases@v1.2.1
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        title: "Development Build"
+```
+
+## Viewing the Ray Dashboard on AKS
 
 1. Get the Ray cluster name using kubectl.
 ```
@@ -157,9 +186,9 @@ kubectl port-forward --address 0.0.0.0 service/${RAYCLUSTER_NAME}-head-svc 8265:
 ```
 3. Access the dashboard on your browser at localhost:8265.
 
-## Issues Encountered
+# Issues Encountered
 
-### runtimeEnv
+## runtimeEnv
 1. The field "working_dir" does not work for local files. Therefore, one must use a link to a github repository.
 2. Include dependencies in the runtimeEnv. For example, include the field "pip" to install packages using pip.
 Use the following example as a template.
@@ -169,18 +198,18 @@ runtimeEnv: |
     "pip": ["torch==1.13.1", "transformers==4.30.2"]}
 ```
 
-### autoscalingConfig
+## autoscalingConfig
 Ray Serve offers autoscaling for deployments by increasing and decreasing number of replicas based on the number of requests.
 Currently, the autoscalingConfig field must be included in the python source code as a deployment parameter.
 The autoscalingConfig field is not supported in the yaml file for apiVersion ray.io/v1alpha1 and serveConfig.
 Refer to [Set Up Autoscaling and Resource Allocation](https://docs.ray.io/en/master/serve/scaling-and-resource-allocation.html#) for more information.
 
-### serveConfig2
+## serveConfig2
 serveConfig2 is supported by newer KubeRay versions (v0.5.2+) and nightly releases.
 When uninstalling KubeRay older versions and installing KubeRay nightly version, ensure to manually change CRD's as helm uninstall does not remove them.
 Refer to [this issue](https://github.com/ray-project/kuberay/issues/1194) and [this issue](https://github.com/ray-project/kuberay/issues/1216) for more information.
 
-### autoscaling on AKS and port-forwarding
+## autoscaling on AKS and port-forwarding
 When autoscaling is enabled and the service is port-forwarded to the local machine, multithreaded queries might cause a connection error.
 Steps to solve this issue:
 1. Use KubeRay nightly release.
@@ -188,5 +217,5 @@ Steps to solve this issue:
 3. Restart the service using the 'kubectl port-forward' command.
 Refer to [this issue](https://github.com/ray-project/kuberay/issues/1222) for more information.
 
-## Helpful Tips
+# Helpful Tips
 - If you don't want replicas running on the head node, set the number of CPUs to 0 in the configuration file on the head node and a non-zero number of CPUs for your deployment replicas.
